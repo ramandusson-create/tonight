@@ -6,93 +6,362 @@
 <title>Skedning 🔥</title>
 
 <style>
-  * { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
-  body {
+body {
     margin: 0;
+    width: 100vw;
     height: 100vh;
+    overflow: hidden;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #080808;
+
+    background:
+        radial-gradient(circle at center, #241000 0%, #080808 55%, #000 100%);
+
     color: white;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     text-align: center;
-  }
+}
 
-  .container {
-    padding: 25px;
+.container {
+    position: relative;
+    z-index: 10;
     width: 100%;
-  }
+    padding: 25px;
+}
 
-  h1 {
-    font-size: clamp(38px, 12vw, 80px);
-    margin: 0 0 25px;
-  }
+.label {
+    font-size: 15px;
+    letter-spacing: 7px;
+    opacity: 0.65;
+    margin-bottom: 15px;
+}
 
-  #countdown {
-    font-size: clamp(48px, 15vw, 100px);
+h1 {
+    margin: 0 0 35px;
+    font-size: clamp(45px, 13vw, 90px);
+    text-shadow: 0 0 25px rgba(255, 90, 0, 0.7);
+}
+
+#countdown {
+    font-size: clamp(55px, 17vw, 115px);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     letter-spacing: 2px;
-  }
 
-  .small {
-    margin-top: 20px;
+    color: #ffb52b;
+
+    text-shadow:
+        0 0 10px #ff6a00,
+        0 0 30px rgba(255, 100, 0, 0.6);
+}
+
+.subtext {
+    margin-top: 25px;
     font-size: 18px;
-    opacity: .6;
-  }
+    opacity: 0.65;
+}
 
-  .finished {
-    animation: pulse 0.7s infinite alternate;
-  }
+.date {
+    margin-top: 35px;
+    font-size: 16px;
+    opacity: 0.55;
+}
 
-  @keyframes pulse {
-    from { transform: scale(1); }
-    to   { transform: scale(1.08); }
-  }
+#finalMessage {
+    display: none;
+}
+
+#finalMessage .now {
+    font-size: clamp(90px, 25vw, 180px);
+    font-weight: 900;
+    color: #ffb52b;
+
+    text-shadow:
+        0 0 15px #ff6600,
+        0 0 50px #ff3300;
+
+    animation: pulse 0.6s infinite alternate;
+}
+
+#finalMessage .skedning {
+    margin-top: 15px;
+    font-size: clamp(40px, 12vw, 80px);
+    font-weight: bold;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.1);
+    }
+}
+
+
+/* KONFETTI */
+
+.confetti {
+    position: fixed;
+    top: -20px;
+    width: 10px;
+    height: 18px;
+
+    z-index: 5;
+
+    animation: fall linear forwards;
+}
+
+@keyframes fall {
+
+    0% {
+        transform:
+            translateY(-10vh)
+            rotate(0deg);
+    }
+
+    100% {
+        transform:
+            translateY(110vh)
+            rotate(900deg);
+    }
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <h1>Skedning 🔥</h1>
-  <div id="countdown">00:00:00</div>
-  <div class="small">kvar till 18:30</div>
+
+    <div id="countdownScreen">
+
+        <div class="label">
+            NEDRÄKNING TILL
+        </div>
+
+        <h1>
+            Skedning 🔥
+        </h1>
+
+        <div id="countdown">
+            00:00:00
+        </div>
+
+        <div class="subtext">
+            kvar...
+        </div>
+
+        <div class="date">
+            17 september 2026 • 18:30
+        </div>
+
+    </div>
+
+
+    <div id="finalMessage">
+
+        <div class="now">
+            NU!
+        </div>
+
+        <div class="skedning">
+            SKEDNING! 🔥
+        </div>
+
+    </div>
+
 </div>
 
-<script>
-  const target = new Date();
-  target.setHours(18, 30, 0, 0);
 
-  function updateCountdown() {
+<script>
+
+/*
+   EXAKT MÅLTID
+
+   Sverige 17 september 2026
+   ligger på sommartid: UTC+02:00
+*/
+
+const targetTime =
+    new Date("2026-09-17T18:30:00+02:00");
+
+let celebrationStarted = false;
+
+
+function updateCountdown() {
+
     const now = new Date();
-    const distance = target - now;
+
+    const distance =
+        targetTime.getTime() - now.getTime();
+
 
     if (distance <= 0) {
-      document.getElementById("countdown").innerHTML = "NU! 🔥";
-      document.getElementById("countdown").classList.add("finished");
-      document.querySelector(".small").innerHTML = "SKEDNING!";
-      return;
+
+        showCelebration();
+
+        return;
     }
 
-    const hours = Math.floor(distance / (1000 * 60 * 60));
-    const minutes = Math.floor(
-      (distance % (1000 * 60 * 60)) / (1000 * 60)
-    );
-    const seconds = Math.floor(
-      (distance % (1000 * 60)) / 1000
-    );
 
-    document.getElementById("countdown").innerHTML =
-      String(hours).padStart(2, "0") + ":" +
-      String(minutes).padStart(2, "0") + ":" +
-      String(seconds).padStart(2, "0");
-  }
+    const hours =
+        Math.floor(
+            distance / (1000 * 60 * 60)
+        );
 
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
+
+    const minutes =
+        Math.floor(
+            (distance % (1000 * 60 * 60))
+            / (1000 * 60)
+        );
+
+
+    const seconds =
+        Math.floor(
+            (distance % (1000 * 60))
+            / 1000
+        );
+
+
+    document.getElementById("countdown").textContent =
+
+        String(hours).padStart(2, "0")
+        + ":" +
+
+        String(minutes).padStart(2, "0")
+        + ":" +
+
+        String(seconds).padStart(2, "0");
+}
+
+
+
+function showCelebration() {
+
+    document.getElementById(
+        "countdownScreen"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "finalMessage"
+    ).style.display = "block";
+
+
+    if (!celebrationStarted) {
+
+        celebrationStarted = true;
+
+        startConfetti();
+    }
+}
+
+
+
+function createConfetti() {
+
+    const colors = [
+        "#ff004c",
+        "#ffb300",
+        "#00e676",
+        "#2979ff",
+        "#d500f9",
+        "#ff6d00"
+    ];
+
+
+    const piece =
+        document.createElement("div");
+
+
+    piece.className = "confetti";
+
+
+    piece.style.left =
+        Math.random() * 100 + "vw";
+
+
+    piece.style.backgroundColor =
+        colors[
+            Math.floor(
+                Math.random() * colors.length
+            )
+        ];
+
+
+    piece.style.animationDuration =
+        (2 + Math.random() * 3) + "s";
+
+
+    piece.style.opacity =
+        0.7 + Math.random() * 0.3;
+
+
+    piece.style.transform =
+        "rotate("
+        + Math.random() * 360
+        + "deg)";
+
+
+    document.body.appendChild(piece);
+
+
+    setTimeout(() => {
+
+        piece.remove();
+
+    }, 5500);
+}
+
+
+
+function startConfetti() {
+
+    /*
+       Första explosionen
+    */
+
+    for (let i = 0; i < 150; i++) {
+
+        setTimeout(
+            createConfetti,
+            Math.random() * 1500
+        );
+    }
+
+
+    /*
+       Fortsatt konfettiregn
+    */
+
+    setInterval(() => {
+
+        for (let i = 0; i < 8; i++) {
+
+            createConfetti();
+        }
+
+    }, 250);
+}
+
+
+
+updateCountdown();
+
+setInterval(
+    updateCountdown,
+    250
+);
+
 </script>
 
 </body>
